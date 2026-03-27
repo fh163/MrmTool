@@ -296,10 +296,10 @@
                     </Border.BorderBrush>
                     <Grid>
                         <!-- String values -->
-                        <winuieditor:CodeEditorControl Padding="-10,12,0,0" x:Name="valueTextEditor" SyntaxHighlightingApplied="SyntaxHighlightingApplied" x:Load="False" />
+                        <winuieditor:CodeEditorControl d:Visibility="Collapsed" Padding="-10,12,0,0" x:Name="valueTextEditor" SyntaxHighlightingApplied="SyntaxHighlightingApplied" x:Load="False" />
                         
                         <!-- Path error: Invalid root -->
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" x:Load="False" x:Name="invalidRootPathContainer">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="invalidRootPathContainer">
                             <TextBlock TextWrapping="Wrap" Text="The root path doesn't contain the the file. You can specify another one below." HorizontalAlignment="Center" />
                             <Button Content="Set root folder" HorizontalAlignment="Center" Margin="0,10,0,0" Click="SetRootFolder_Click" />
                         </StackPanel>
@@ -316,12 +316,12 @@
                         </StackPanel>
 
                         <!-- Path fallback -->
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" x:Load="False" x:Name="openFolderContainer">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="openFolderContainer">
                             <Button Content="Show in Explorer" HorizontalAlignment="Center" Click="OpenFolder_Click" />
                         </StackPanel>
 
                         <!-- Embedded data fallback -->
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" x:Load="False" x:Name="exportContainer">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="exportContainer">
                             <TextBlock x:Name="fileSizeLabel" HorizontalAlignment="Center" />
                             <Button Content="Export to disk" HorizontalAlignment="Center" Margin="0,10,0,0" Click="ExportButton_Click" />
                         </StackPanel>
@@ -338,16 +338,16 @@
                         </StackPanel>
 
                         <!-- Image Previewer -->
-                        <ScrollViewer x:Name="imagePreviewerContainer" x:Load="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" ZoomMode="Enabled" IsZoomInertiaEnabled="True">
+                        <ScrollViewer x:Name="imagePreviewerContainer" d:Visibility="Collapsed" x:Load="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" ZoomMode="Enabled" IsZoomInertiaEnabled="True">
                             <Image x:Name="imagePreviewer" Stretch="None" />
                         </ScrollViewer>
                         
                         <!-- SVG Previewer -->
-                        <ScrollViewer x:Name="svgPreviewerContainer" x:Load="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" ZoomMode="Enabled" IsZoomInertiaEnabled="True">
+                        <ScrollViewer x:Name="svgPreviewerContainer" d:Visibility="Collapsed" x:Load="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" ZoomMode="Enabled" IsZoomInertiaEnabled="True">
                             <ContentPresenter x:Name="svgPreviewer" />
                         </ScrollViewer>
 
-                        <WebView x:Name="webView" x:Load="False" DefaultBackgroundColor="Transparent" />
+                        <WebView x:Name="webView" d:Visibility="Collapsed" x:Load="False" DefaultBackgroundColor="Transparent" />
                     </Grid>
                 </Border>
 

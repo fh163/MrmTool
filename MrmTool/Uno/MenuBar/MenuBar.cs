@@ -24,7 +24,7 @@ namespace Microsoft.UI.Xaml.Controls
 
         public static DependencyProperty ItemsProperty { get; } =
             DependencyProperty.Register(
-                "Items",
+                nameof(Items),
                 typeof(IList<MenuBarItem>),
                 typeof(MenuBar),
                 new PropertyMetadata(null)

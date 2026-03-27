@@ -14,7 +14,7 @@ namespace Microsoft.UI.Xaml.Controls
     public partial class RadioMenuFlyoutItem : ToggleMenuFlyoutItem
     {
         [ThreadStatic]
-        private static ConcurrentDictionary<string, WeakReference<RadioMenuFlyoutItem>> s_selectionMap = new();
+        private static ConcurrentDictionary<string, WeakReference<RadioMenuFlyoutItem>>? s_selectionMap;
 
         // Copies of IsChecked & GroupName to avoid using those dependency properties in the ~RadioMenuFlyoutItem() destructor which would lead to crashes.
         private bool m_isChecked;
@@ -85,6 +85,8 @@ namespace Microsoft.UI.Xaml.Controls
 
         private void UpdateCheckedItemInGroup()
         {
+            s_selectionMap ??= new();
+
             if (IsChecked)
             {
                 var groupName = GroupName;
