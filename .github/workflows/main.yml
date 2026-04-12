@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 # ==============================================
-# 👉 手动编译教程（忘记操作看这里）
+# 👉 手动编译教程
 # 1. 打开你的GitHub仓库 → 点击顶部「Actions」
 # 2. 左侧选择「Build MrmTool」工作流
 # 3. 右上角点击「Run workflow」→ 再次点击绿色按钮确认
@@ -55,22 +55,10 @@ jobs:
           echo "自动找到输出目录: $publishDir"
           echo "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-      - name: 仅打包4个核心文件
-        run: |
-          # 切换到输出目录，确保文件直接打包到zip根目录，避免路径嵌套
-          Push-Location $env:PUBLISH_DIR
-          $files = @(
-            "MrmTool.exe",
-            "MrmLib.dll",
-            "WinUIEditor.dll",
-            "resources.pri"
-          )
-          # 直接把zip生成到仓库根目录，确保上传步骤能正常找到文件
-          Compress-Archive -Path $files -DestinationPath "$env:GITHUB_WORKSPACE/MrmTool_x64.zip" -Force
-          Pop-Location
-
-      - name: 上传最终4文件zip
+      # 直接上传publish目录下的所有文件
+      # 所有文件都会直接放在zip的根目录，没有任何嵌套
+      - name: 上传最终编译文件
         uses: actions/upload-artifact@v4
         with:
           name: MrmTool-x64
-          path: MrmTool_x64.zip
+          path: ${{ env.PUBLISH_DIR }}/*
