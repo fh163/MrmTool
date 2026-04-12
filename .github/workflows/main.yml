@@ -12,7 +12,7 @@ on:
 # 1. 打开你的GitHub仓库 → 点击顶部「Actions」
 # 2. 左侧选择「Build MrmTool」工作流
 # 3. 右上角点击「Run workflow」→ 再次点击绿色按钮确认
-# 4. 等待编译完成 → 下载Artifact → 得到和作者原版一致的4文件zip
+# 4. 等待编译完成 → 下载Artifact
 # ==============================================
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
       - name: Restore NuGet
         run: msbuild MrmTool.sln /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RestorePackagesConfig=true
 
-      - name: 发布自包含单文件版本（和作者原版完全一致）
+      - name: 发布自包含单文件版本
         run: msbuild MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64
 
       - name: 自动定位核心文件路径
@@ -55,9 +55,9 @@ jobs:
           echo "自动找到输出目录: $publishDir"
           echo "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-      - name: 仅打包4个核心文件（1:1复刻作者原版，单层根目录）
+      - name: 仅打包4个核心文件
         run: |
-          # 切换到输出目录，确保文件直接打包到zip根目录，彻底避免路径嵌套
+          # 切换到输出目录，确保文件直接打包到zip根目录，避免路径嵌套
           Push-Location $env:PUBLISH_DIR
           $files = @(
             "MrmTool.exe",
@@ -65,7 +65,8 @@ jobs:
             "WinUIEditor.dll",
             "resources.pri"
           )
-          Compress-Archive -Path $files -DestinationPath "../MrmTool_x64.zip" -Force
+          # 直接把zip生成到仓库根目录，确保上传步骤能正常找到文件
+          Compress-Archive -Path $files -DestinationPath "$env:GITHUB_WORKSPACE/MrmTool_x64.zip" -Force
           Pop-Location
 
       - name: 上传最终4文件zip
