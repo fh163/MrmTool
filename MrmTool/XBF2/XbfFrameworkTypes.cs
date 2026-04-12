@@ -3897,7 +3897,7 @@ namespace XbfAnalyzer.Xbf
 			/* 0x03BF */ null,
 			/* 0x03C0 */ null,
 			/* 0x03C1 */ null,
-			/* 0x03C2 */ new Dictionary<int, string> { { 0, "None" }, { 1, "剪切" }, { 2, "复制" }, { 3, "粘贴" }, { 4, "全选" }, { 5, "删除" }, { 6, "共享" }, { 7, "保存" }, { 8, "打开" }, { 9, "关闭" }, { 10, "暂停" }, { 11, "播放" }, { 12, "停止" }, { 13, "前进" }, { 14, "后退" }, { 15, "撤销" }, { 16, "重做" } }, // Windows.UI.Xaml.Input.StandardUICommandKind
+			/* 0x03C2 */ new Dictionary<int, string> { { 0, "None" }, { 1, "Cut" }, { 2, "Copy" }, { 3, "Paste" }, { 4, "SelectAll" }, { 5, "Delete" }, { 6, "Share" }, { 7, "Save" }, { 8, "Open" }, { 9, "Close" }, { 10, "Pause" }, { 11, "Play" }, { 12, "Stop" }, { 13, "Forward" }, { 14, "Backward" }, { 15, "Undo" }, { 16, "Redo" } }, // Windows.UI.Xaml.Input.StandardUICommandKind
 			/* 0x03C3 */ null,
 			/* 0x03C4 */ null,
 			/* 0x03C5 */ new Dictionary<int, string> { { 1, "X" }, { 2, "Y" }, { 4, "Z" } }, // Windows.UI.Xaml.Vector3TransitionComponents
