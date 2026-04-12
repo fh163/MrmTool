@@ -111,9 +111,9 @@ namespace MrmTool
             {
                 ContentDialog dialog = new()
                 {
-                    Title = "Error",
-                    Content = $"Failed to load the selected PRI file.\r\nException: {ex.GetType().Name} (0x{ex.HResult:X8})\r\nException Message: {ex.Message}\r\nStacktrace:\r\n\r\n{ex.StackTrace}",
-                    CloseButtonText = "OK",
+                    Title = "错误",
+                    Content = $"加载选中的PRI文件失败。\r\n异常：{ex.GetType().Name} (0x{ex.HResult:X8})\r\n异常信息：{ex.Message}\r\n堆栈跟踪：\r\n\r\n{ex.StackTrace}",
+                    CloseButtonText = "确定",
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
@@ -126,7 +126,7 @@ namespace MrmTool
         {
             FileOpenPicker picker = new();
             picker.FileTypeFilter.Add(".pri");
-            picker.CommitButtonText = "Load";
+            picker.CommitButtonText = "加载";
             picker.Initialize();
 
             if (await picker.PickSingleFileAsync() is { } file)
@@ -150,9 +150,9 @@ namespace MrmTool
             {
                 ContentDialog dialog = new()
                 {
-                    Title = "Error",
-                    Content = $"Failed to save the PRI file.\r\nException: {ex.GetType().Name} (0x{ex.HResult:X8})\r\nException Message: {ex.Message}\r\nStacktrace:\r\n\r\n{ex.StackTrace}",
-                    CloseButtonText = "OK",
+                    Title = "错误",
+                    Content = $"保存PRI文件失败。\r\n异常：{ex.GetType().Name} (0x{ex.HResult:X8})\r\n异常信息：{ex.Message}\r\n堆栈跟踪：\r\n\r\n{ex.StackTrace}",
+                    CloseButtonText = "确定",
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
@@ -169,7 +169,7 @@ namespace MrmTool
         private async void SaveAs_Click(object sender, RoutedEventArgs e)
         {
             FileSavePicker picker = new();
-            picker.FileTypeChoices.Add("PRI File", new List<string>() { ".pri" });
+            picker.FileTypeChoices.Add("PRI文件", new List<string>() { ".pri" });
             picker.Initialize();
 
             if (await picker.PickSaveFileAsync() is { } file)
@@ -203,9 +203,9 @@ namespace MrmTool
             {
                 ContentDialog errorDialog = new()
                 {
-                    Title = "Error",
-                    Content = $"Failed to create resource.\r\nException: {ex.GetType().Name} (0x{ex.HResult:X8})\r\nException Message: {ex.Message}\r\nStacktrace:\r\n\r\n{ex.StackTrace}",
-                    CloseButtonText = "OK",
+                    Title = "错误",
+                    Content = $"创建资源失败。\r\n异常：{ex.GetType().Name} (0x{ex.HResult:X8})\r\n异常信息：{ex.Message}\r\n堆栈跟踪：\r\n\r\n{ex.StackTrace}",
+                    CloseButtonText = "确定",
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
@@ -236,7 +236,7 @@ namespace MrmTool
         {
             FolderPicker picker = new();
             picker.FileTypeFilter.Add("*");
-            picker.CommitButtonText = "Select PRI Root Folder";
+            picker.CommitButtonText = "选择PRI根文件夹";
             picker.Initialize();
 
             if (await picker.PickSingleFolderAsync() is { } folder)
@@ -265,9 +265,9 @@ namespace MrmTool
                 {
                     ContentDialog dialog = new()
                     {
-                        Title = "Error",
-                        Content = "Please select PRI root folder first in order to embed path resources into the PRI file.",
-                        CloseButtonText = "OK",
+                        Title = "错误",
+                        Content = "请先选择PRI根文件夹，才能将路径资源嵌入到PRI文件中。",
+                        CloseButtonText = "确定",
                         DefaultButton = ContentDialogButton.Close,
                     };
 
@@ -293,7 +293,7 @@ namespace MrmTool
                 if (path is null || Path.GetExtension(path).ToLowerInvariant() is ".pri")
                 {
                     e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = "Drop to load the PRI file";
+                    e.DragUIOverride.Caption = "拖放以加载PRI文件";
                     e.Handled = true;
                 }
                 else
@@ -420,7 +420,7 @@ namespace MrmTool
                 }
 
                 FindName(nameof(exportContainer));
-                fileSizeLabel.Text = $"File Size: {dataValue.Length} bytes";
+                fileSizeLabel.Text = $"文件大小：{dataValue.Length} 字节";
             }
             else
             {
@@ -515,7 +515,7 @@ namespace MrmTool
 
                         xbfFileNameRun.Text = _selectedResource is not null ?
                             _selectedResource.DisplayName :
-                            "the XBF file";
+                            "XBF文件";
 
                         failedXbfExceptionMessageRun.Text = $"{ex.GetType().Name} (0x{ex.HResult:X8}) -> {ex.Message}";
                         xbfFallbackContainer.Visibility = Visibility.Visible;
@@ -761,7 +761,7 @@ namespace MrmTool
                     picker.FileTypeChoices.Add($"{extension[1..].ToUpperInvariant()} file", new string[] { extension });
                 }
 
-                picker.FileTypeChoices.Add("All files", new string[] { "." });
+                picker.FileTypeChoices.Add("所有文件", new string[] { "." });
 
                 if (await picker.PickSaveFileAsync() is { } file)
                 {
