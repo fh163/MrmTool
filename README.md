@@ -1,4 +1,4 @@
-# MrmTool 中文汉化版               [原MrmTool作者](https://github.com/ahmed605/MrmTool)
+# MrmTool 中文汉化版
 
 **MrmTool** 是一个用于查看和编辑 **PRI** 文件的工具，它允许你创建、修改和删除 **PRI** 资源，同时还可以预览它们的内容。
 
