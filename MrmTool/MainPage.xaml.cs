@@ -24,7 +24,7 @@ namespace MrmTool
         {
             FileOpenPicker picker = new();
             picker.FileTypeFilter.Add(".pri");
-            picker.CommitButtonText = "Load";
+            picker.CommitButtonText = "加载";
             picker.Initialize();
 
             if (await picker.PickSingleFileAsync() is { } file)
@@ -42,7 +42,7 @@ namespace MrmTool
                 if (path is null || Path.GetExtension(path).ToLowerInvariant() is ".pri")
                 {
                     e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = "Drop to load the PRI file";
+                    e.DragUIOverride.Caption = "拖放以加载PRI文件";
                     e.Handled = true;
                 }
                 else
@@ -78,9 +78,9 @@ namespace MrmTool
             {
                 ContentDialog dialog = new()
                 {
-                    Title = "Error",
-                    Content = $"Failed to load the selected PRI file.\r\nException: {ex.GetType().Name} (0x{ex.HResult:X8})\r\nException Message: {ex.Message}\r\nStacktrace:\r\n\r\n{ex.StackTrace}",
-                    CloseButtonText = "OK",
+                    Title = "错误",
+                    Content = $"加载选中的PRI文件失败。\r\n异常：{ex.GetType().Name} (0x{ex.HResult:X8})\r\n异常信息：{ex.Message}\r\n堆栈跟踪：\r\n\r\n{ex.StackTrace}",
+                    CloseButtonText = "确定",
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
