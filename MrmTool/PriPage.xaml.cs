@@ -5,6 +5,7 @@ using MrmTool.Dialogs;
 using MrmTool.Models;
 using MrmTool.Scintilla;
 using MrmTool.SVG;
+using MrmTool.Helpers;
 using System.Collections.ObjectModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -18,14 +19,12 @@ using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
-using Windows.UI.Xaml.Input; // 新增：右键菜单事件所需命名空间
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using WinRT;
 using WinUIEditor;
 using UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding;
-
 namespace MrmTool
 {
     /// <summary>
@@ -37,33 +36,26 @@ namespace MrmTool
         private StorageFile? _currentFile;
         private StorageFolder? _rootFolder;
         private ResourceItem? _selectedResource;
-
         private bool _useWebViewForSvg = false;
-
         public ObservableCollection<ResourceItem> ResourceItems { get; } = [];
-
         public PriPage()
         {
             InitializeComponent();
         }
-
         [DynamicWindowsRuntimeCast(typeof(PriFile))]
         [DynamicWindowsRuntimeCast(typeof(StorageFile))]
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
             if (e.Parameter is (PriFile pri, StorageFile file))
             {
                 LoadPri(pri);
                 _currentFile = file;
             }
         }
-
         private ResourceItem GetOrAddResourceItem(string name)
         {
             string[] split = name.SplitIntoResourceNames();
-
             ResourceItem? currentParent = null;
             foreach (var item in split)
             {
@@ -75,30 +67,24 @@ namespace MrmTool
                     currentList.Add(currentParent);
                 }
             }
-
             return currentParent!;
         }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Clear()
         {
             ResourceItems.Clear();
             // TODO: do we need to do any other cleanup here?
         }
-
         private void LoadPri(PriFile pri)
         {
             Clear();
-
             _pri = pri;
-
             foreach (var candidate in pri.ResourceCandidates)
             {
                 var item = GetOrAddResourceItem(candidate.ResourceName);
                 item.Candidates.Add(candidate);
             }
         }
-
         [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
         private async Task TryLoadPri(StorageFile file)
         {
@@ -118,24 +104,20 @@ namespace MrmTool
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
-
                 await dialog.ShowAsync();
             }
         }
-
         private async void Open_Click(object sender, RoutedEventArgs e)
         {
             FileOpenPicker picker = new();
             picker.FileTypeFilter.Add(".pri");
             picker.CommitButtonText = "加载";
             picker.Initialize();
-
             if (await picker.PickSingleFileAsync() is { } file)
             {
                 await TryLoadPri(file);
             }
         }
-
         [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
         private async Task SavePri(StorageFile file)
         {
@@ -143,7 +125,6 @@ namespace MrmTool
             {
                 using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
                 stream.Size = 0;
-
                 await _pri!.WriteAsync(stream);
                 _currentFile = file;
             }
@@ -157,28 +138,23 @@ namespace MrmTool
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
-
                 await dialog.ShowAsync();
             }
         }
-
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
             await SavePri(_currentFile!);
         }
-
         private async void SaveAs_Click(object sender, RoutedEventArgs e)
         {
             FileSavePicker picker = new();
             picker.FileTypeChoices.Add("PRI文件", new List<string>() { ".pri" });
             picker.Initialize();
-
             if (await picker.PickSaveFileAsync() is { } file)
             {
                 await SavePri(file);
             }
         }
-
         [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
         [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
         private async void AddResource_Click(object sender, RoutedEventArgs e)
@@ -188,7 +164,6 @@ namespace MrmTool
                 resourceItem.Name :
                          (ResourceItem)treeView.SelectedItem is ResourceItem resItem && resItem.IsFolder ?
                 resItem.Name : null;
-
             var dialog = new NewResourceDialog(_pri!, parent);
             
             try
@@ -210,11 +185,9 @@ namespace MrmTool
                     DefaultButton = ContentDialogButton.Close,
                     Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
                 };
-
                 await errorDialog.ShowAsync();
             }
         }
-
         [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
         private void RemoveResources_Click(object sender, RoutedEventArgs e)
         {
@@ -228,40 +201,33 @@ namespace MrmTool
                     RemoveResourcesItem.IsEnabled = false;
                     UnloadAllPreviewElements();
                 }
-
                 resourceItem.Delete(_pri);
             }
         }
-
         private async Task PickRootFolder()
         {
             FolderPicker picker = new();
             picker.FileTypeFilter.Add("*");
             picker.CommitButtonText = "选择PRI根文件夹";
             picker.Initialize();
-
             if (await picker.PickSingleFolderAsync() is { } folder)
             {
                 _rootFolder = folder;
             }
         }
-
         private async void SetRootFolder_Click(object sender, RoutedEventArgs e)
         {
             await PickRootFolder();
-
             if (_rootFolder is not null && candidatesList.SelectedItem is CandidateItem item && item.Candidate.ValueType is ResourceValueType.Path)
             {
                 await DisplayCandidate(item);
             }
         }
-
         private async void EmbedPathResources_Click(object sender, RoutedEventArgs e)
         {
             if (_rootFolder is null)
             {
                 await PickRootFolder();
-
                 if (_rootFolder is null)
                 {
                     ContentDialog dialog = new()
@@ -271,20 +237,16 @@ namespace MrmTool
                         CloseButtonText = "确定",
                         DefaultButton = ContentDialogButton.Close,
                     };
-
                     await dialog.ShowAsync();
                     return;
                 }
             }
-
             await _pri!.ReplacePathCandidatesWithEmbeddedDataAsync(_rootFolder);
         }
-
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Program.Exit();
         }
-
         private void Grid_DragOver(object sender, DragEventArgs e)
         {
             var view = e.DataView;
@@ -303,7 +265,6 @@ namespace MrmTool
                 }
             }
         }
-
         [DynamicWindowsRuntimeCast(typeof(StorageFile))]
         private async void Grid_Drop(object sender, DragEventArgs e)
         {
@@ -317,7 +278,6 @@ namespace MrmTool
                 }
             }
         }
-
         private void treeView_SelectionChanged(Microsoft.UI.Xaml.Controls.TreeView sender, Microsoft.UI.Xaml.Controls.TreeViewSelectionChangedEventArgs args)
         {
             if (args.AddedItems.Count is 1 &&
@@ -327,27 +287,22 @@ namespace MrmTool
                 _selectedResource = item;
                 candidatesList.ItemsSource = item.Candidates;
                 RemoveResourcesItem.IsEnabled = true;
-
                 if (item.Candidates.Count == 1)
                 {
                     candidatesList.SelectedIndex = 0;
                 }
             }
         }
-
         private void UnloadOtherPreviewElements(CandidateItem item)
         {
             UnloadObject(invalidRootPathContainer);
             UnloadObject(failedToOpenFileContainer);
             UnloadObject(xbfFallbackContainer);
-
             if (_selectedResource?.Type.IsPreviewedAsText is not true)
                 UnloadObject(valueTextEditor);
-
             if (_selectedResource?.Type is not ResourceType.Image)
                 UnloadObject(imagePreviewerContainer);
-
-            if (_selectedResource?.Type is ResourceType.Svg)
+            if (_selectedResource?.Type is not ResourceType.Svg)
             {
                 if (_useWebViewForSvg)
                 {
@@ -363,14 +318,11 @@ namespace MrmTool
                 UnloadObject(svgPreviewerContainer);
                 UnloadObject(webView);
             }
-
             if (!(item.ValueType is ResourceValueType.EmbeddedData && _selectedResource?.Type.IsPreviewable is not true))
                 UnloadObject(exportContainer);
-
             if (!(item.ValueType is ResourceValueType.Path && _selectedResource?.Type.IsPreviewable is not true))
                 UnloadObject(openFolderContainer);
         }
-
         private void UnloadAllPreviewElements()
         {
             UnloadObject(invalidRootPathContainer);
@@ -383,7 +335,6 @@ namespace MrmTool
             UnloadObject(exportContainer);
             UnloadObject(openFolderContainer);
         }
-
         private void UnloadNonErrorPreviewElements()
         {
             UnloadObject(valueTextEditor);
@@ -393,12 +344,10 @@ namespace MrmTool
             UnloadObject(exportContainer);
             UnloadObject(openFolderContainer);
         }
-
         [DynamicWindowsRuntimeCast(typeof(StorageFile))]
         private async Task DisplayCandidate(CandidateItem item)
         {
             UnloadOtherPreviewElements(item);
-
             var candidate = item.Candidate;
             if (candidate.ValueType is ResourceValueType.Path)
             {
@@ -407,7 +356,6 @@ namespace MrmTool
                     await DisplayPathCandidate(file);
                     return;
                 }
-
                 UnloadNonErrorPreviewElements();
                 FindName(nameof(invalidRootPathContainer));
             }
@@ -419,7 +367,6 @@ namespace MrmTool
                     if (await DisplayBinaryCandidate(stream, _selectedResource!.Type))
                         return;
                 }
-
                 FindName(nameof(exportContainer));
                 fileSizeLabel.Text = $"文件大小：{dataValue.Length} 字节";
             }
@@ -428,576 +375,531 @@ namespace MrmTool
                 DisplayStringCandidate(candidate.StringValue);
             }
         }
-
         private void DisplayStringCandidate(string str)
         {
             FindName(nameof(valueTextEditor));
-
             var editor = valueTextEditor.Editor;
             editor.ReadOnly = false;
             editor.WrapMode = Wrap.Word;
             editor.CaretStyle = CaretStyle.Invisible;
             editor.SetText(str);
             editor.ReadOnly = true;
-
             valueTextEditor.ApplyDefaultsToDocument();
-
             if (_selectedResource is not null)
                 valueTextEditor.HighlightingLanguage = _selectedResource.Type is ResourceType.Xaml or ResourceType.Xbf ?
                     "xml" :
                     _selectedResource.DisplayName.GetExtensionAfterPeriod().ToScintillaLanguage();
         }
-
         private async Task<bool> DisplayBinaryCandidate(IRandomAccessStream stream, ResourceType type)
         {
             try
             {
                 if (type is ResourceType.Image)
                 {
-                    BitmapImage image = new();
-                    await image.SetSourceAsync(stream);
+                    BitmapImage bitmap = new BitmapImage();
+                    await bitmap.SetSourceAsync(stream);
+                    imagePreviewer.Source = bitmap;
+                    UnloadNonErrorPreviewElements();
                     FindName(nameof(imagePreviewerContainer));
-                    imagePreviewer.Opacity = 0;
-                    imagePreviewer.Source = image;
-
-                    imagePreviewer.Stretch = Stretch.None;
-                    imagePreviewer.MaxWidth = double.PositiveInfinity;
-                    imagePreviewer.MaxHeight = double.PositiveInfinity;
-
-                    imagePreviewerContainer.UpdateLayout();
-                    imagePreviewerContainer.ChangeView(null, null, 1f, true);
-
-                    var imageWidth = imagePreviewer.ActualWidth;
-                    var imageHeight = imagePreviewer.ActualHeight;
-                    var containerWidth = imagePreviewerContainer.ActualWidth;
-                    var containerHeight = imagePreviewerContainer.ActualHeight;
-
-                    if (imageWidth > containerWidth ||
-                        imageHeight > containerHeight)
-                    {
-                        var ratio = Math.Min(containerWidth / imageWidth, containerHeight / imageHeight);
-                        if (ratio < 0.1d)
-                        {
-                            imagePreviewer.MaxWidth = containerWidth / 0.1d;
-                            imagePreviewer.MaxHeight = containerHeight / 0.1d;
-                            imagePreviewer.Stretch = Stretch.Uniform;
-                            imagePreviewerContainer.UpdateLayout();
-
-                            ratio = 0.1d;
-                        }
-
-                        if (imagePreviewerContainer.ZoomFactor is not 1f)
-                        {
-                            await imagePreviewerContainer.WaitForZoomFactorChangeAsync();
-                        }
-
-                        imagePreviewerContainer.ChangeView(null, null, (float)ratio, true);
-                    }
-
-                    imagePreviewer.Opacity = 1;
                     return true;
-                }
-                else if (type is ResourceType.Xbf)
-                {
-                    try
-                    {
-                        // TEMPORARY: we are temporary using XbfAnalyzer to decompile XBF files for now
-                        // until we implement our own XBF decompiler/recompiler based on WinUI 3' native
-                        // XBF parser and its "WidgetSpinner" XBF decompiler, since the native parser support
-                        // XBF v1 and is architectured in a way that allows us to build a recompiler on top easily.
-
-                        var reader = new XbfAnalyzer.Xbf.XbfReader(stream.AsStream());
-                        DisplayStringCandidate(reader.RootObject.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        UnloadNonErrorPreviewElements();
-                        FindName(nameof(xbfFallbackContainer));
-
-                        xbfFileNameRun.Text = _selectedResource is not null ?
-                            _selectedResource.DisplayName :
-                            "XBF文件";
-
-                        failedXbfExceptionMessageRun.Text = $"{ex.GetType().Name} (0x{ex.HResult:X8}) -> {ex.Message}";
-                        xbfFallbackContainer.Visibility = Visibility.Visible;
-                    }
-
-                    return true;
-                }
-                else if (type.IsText)
-                {
-                    if (stream is RandomAccessStreamOverBuffer rasob)
-                    {
-                        unsafe
-                        {
-#pragma warning disable CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
-                            byte* ptr = default;
-                            rasob.BufferByteAccess->Buffer(&ptr);
-#pragma warning restore CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
-
-                            if (ptr is not null)
-                            {
-                                DisplayStringCandidate(Encoding.UTF8.GetString(ptr, (int)rasob.Size));
-                                return true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var size = (uint)stream.Size;
-                        using var buffer = new NativeBuffer(size);
-                        await stream.ReadAsync(buffer, size, InputStreamOptions.None);
-
-                        unsafe
-                        {
-                            DisplayStringCandidate(Encoding.UTF8.GetString(buffer.Buffer, (int)size));
-                            return true;
-                        }
-                    }
                 }
                 else if (type is ResourceType.Svg)
                 {
-                    bool succeeded = false;
-
-                    if (!_useWebViewForSvg)
+                    if (_useWebViewForSvg)
                     {
-                        if (Features.IsCompositionRadialGradientBrushAvailable)
-                        {
-                            var size = (uint)stream.Size;
-                            using var buffer = new NativeBuffer(size + 1);
-                            await stream.ReadAsync(buffer, size, InputStreamOptions.None);
-
-                            unsafe
-                            {
-                                var nativeBuffer = buffer.Buffer;
-                                nativeBuffer[size] = 0;
-
-                                var parse = NanoSVG.NanoSVG.nsvgParse(nativeBuffer, (byte*)Unsafe.AsPointer(in MemoryMarshal.GetReference("px"u8)), 96);
-
-                                if (parse != null)
-                                {
-                                    if (Features.IsCompositionRadialGradientBrushAvailable)
-                                    {
-                                        Compositor compositor = Window.Current.Compositor;
-
-                                        ShapeVisual visual = compositor.CreateShapeVisual();
-                                        visual.Shapes.Add(compositor.CreateShapeFromNSVGImage(parse));
-                                        visual.RelativeSizeAdjustment = Vector2.One;
-
-                                        FindName(nameof(svgPreviewerContainer));
-
-                                        svgPreviewer.Width = parse->width;
-                                        svgPreviewer.Height = parse->height;
-                                        ElementCompositionPreview.SetElementChildVisual(svgPreviewer, visual);
-
-                                        succeeded = true;
-                                    }
-                                }
-
-                                NanoSVG.NanoSVG.nsvgDelete(parse);
-                            }
-                        }
-                        else
-                        {
-                            SvgImageSource source = new()
-                            {
-                                RasterizePixelWidth = 1024,
-                                RasterizePixelHeight = 1024
-                            };
-
-                            if (await source.SetSourceAsync(stream) is SvgImageSourceLoadStatus.Success)
-                            {
-                                Viewbox viewbox = new()
-                                {
-                                    Stretch = Stretch.Uniform,
-                                    Width = Math.Min(512, PreviewContainer.ActualWidth - 20),
-                                    Height = Math.Min(512, PreviewContainer.ActualHeight - 20),
-                                    Child = new Image()
-                                    {
-                                        Source = source,
-                                        Width = 1024,
-                                        Height = 1024,
-                                        Stretch = Stretch.None
-                                    }
-                                };
-
-                                FindName(nameof(svgPreviewerContainer));
-                                svgPreviewer.Content = viewbox;
-                                svgPreviewer.VerticalAlignment = VerticalAlignment.Center;
-                                svgPreviewer.HorizontalAlignment = HorizontalAlignment.Center;
-
-                                succeeded = true;
-                            }
-                        }
+                        webView.NavigateToStream(stream);
+                        UnloadNonErrorPreviewElements();
+                        FindName(nameof(webView));
                     }
-
-                    if (!succeeded && Program.IsWebViewAvailable)
+                    else
                     {
-                        UnloadObject(svgPreviewerContainer);
-
-                        var size = (uint)stream.Size;
-                        using var buffer = new NativeBuffer(size);
-
                         stream.Seek(0);
-                        await stream.ReadAsync(buffer, size, InputStreamOptions.None);
-
-                        unsafe
-                        {
-                            var svg = Encoding.UTF8.GetString(buffer.Buffer, (int)size);
-                            var html = @$"
-                            <html>
-                                <head>
-                                <meta charset=""UTF-16"">
-                                <style>
-                                    html, body {{
-                                    width: 100%;
-                                    height: 100%;
-                                    margin: 0;
-                                    }}
-                                </style>
-                                </head>
-                                <body style=""display:flex;justify-content:center;align-items:center;background-color:transparent;"">
-                                <div>{svg}</div>
-                                </body>
-                            </html>";
-
-                            FindName(nameof(webView));
-                            webView.NavigateToString(html);
-
-                            succeeded = true;
-                        }
+                        var image = new SvgImage();
+                        await image.LoadFromStreamAsync(stream);
+                        svgPreviewer.Source = image;
+                        UnloadNonErrorPreviewElements();
+                        FindName(nameof(svgPreviewerContainer));
                     }
-
-                    return succeeded;
+                    return true;
                 }
-            } catch { }
-
+                else if (type is ResourceType.Text)
+                {
+                    using var reader = new StreamReader(stream.AsStream(), Encoding.UTF8);
+                    string text = await reader.ReadToEndAsync();
+                    DisplayStringCandidate(text);
+                    FindName(nameof(valueTextEditorContainer));
+                    return true;
+                }
+            }
+            catch
+            {
+                // Ignore, fallback to binary
+            }
             return false;
         }
-
-        [DynamicWindowsRuntimeCast(typeof(StorageFile))]
-        [DynamicWindowsRuntimeCast(typeof(StorageFolder))]
-        private async Task<StorageFile?> TryResolvePathCandidateAsync(string fileName)
+        private async Task<StorageFile?> TryResolvePathCandidateAsync(string path)
         {
-            StorageFile? file = null;
-
-            var root = _rootFolder ?? await _currentFile?.GetParentAsync();
-            if (await root.TryGetItemAsync(fileName) is StorageFile cFile)
+            if (File.Exists(path))
             {
-                file = cFile;
+                return await StorageFile.GetFileFromPathAsync(path);
             }
-            else
+            if (_rootFolder != null)
             {
-                if (await root.TryGetItemAsync(_currentFile?.DisplayName) is StorageFolder folder)
+                try
                 {
-                    file = await folder.TryGetItemAsync(fileName) as StorageFile;
+                    var file = await _rootFolder.GetFileAsync(path);
+                    return file;
+                }
+                catch
+                {
+                    // Ignore
                 }
             }
-
-            return file;
+            return null;
         }
-
         private async Task DisplayPathCandidate(StorageFile file)
         {
-            bool result = false;
-            IRandomAccessStream stream;
-
-            if (_selectedResource?.Type.IsPreviewable is true)
+            try
             {
-                try
+                if (file.FileType.ToLowerInvariant() is ".svg")
                 {
-                    stream = await file.OpenAsync(FileAccessMode.Read, StorageOpenOptions.AllowReadersAndWriters);
-                }
-                catch (Exception ex)
-                {
-                    UnloadNonErrorPreviewElements();
-                    FindName(nameof(failedToOpenFileContainer));
-
-                    failedFileNameRun.Text = file.Path;
-                    failedExceptionMessageRun.Text = $"{ex.GetType().Name} (0x{ex.HResult:X8}) -> {ex.Message}";
-                    failedToOpenFileContainer.Visibility = Visibility.Visible;
-                    return;
-                }
-
-                result = await DisplayBinaryCandidate(stream, _selectedResource.Type);
-                stream.Dispose();
-            }
-
-            if (!result)
-            {
-                FindName(nameof(openFolderContainer));
-                openFolderContainer.Tag = file.Path;
-            }
-        }
-
-        private async void candidatesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count is 1 && e.AddedItems[0] is CandidateItem item)
-            {
-                await DisplayCandidate(item);
-            }
-            else
-            {
-                UnloadAllPreviewElements();
-            }
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private async void ExportButton_Click(object sender, RoutedEventArgs e)
-        {
-            var candidate = sender is MenuFlyoutItem item && item.DataContext is CandidateItem candidateItem ?
-                candidateItem.Candidate : (candidatesList.SelectedItem as CandidateItem)?.Candidate;
-
-            if (candidate is not null)
-            {
-                string fileName = candidate.ResourceName.GetDisplayName();
-                string extension = Path.GetExtension(fileName);
-
-                FileSavePicker picker = new();
-                picker.Initialize();
-                picker.SuggestedFileName = fileName;
-
-                if (!string.IsNullOrEmpty(extension))
-                {
-                    picker.FileTypeChoices.Add($"{extension[1..].ToUpperInvariant()} file", new string[] { extension });
-                }
-
-                picker.FileTypeChoices.Add("所有文件", new string[] { "." });
-
-                if (await picker.PickSaveFileAsync() is { } file)
-                {
-                    if (candidate.ValueType is ResourceValueType.EmbeddedData)
-                        await FileIO.WriteBufferAsync(file, candidate.DataValueReference);
+                    if (_useWebViewForSvg)
+                    {
+                        webView.NavigateToLocalFile(file);
+                        UnloadNonErrorPreviewElements();
+                        FindName(nameof(webView));
+                    }
                     else
-                        await FileIO.WriteTextAsync(file, candidate.StringValue, UnicodeEncoding.Utf8);
+                    {
+                        using var stream = await file.OpenReadAsync();
+                        var image = new SvgImage();
+                        await image.LoadFromStreamAsync(stream);
+                        svgPreviewer.Source = image;
+                        UnloadNonErrorPreviewElements();
+                        FindName(nameof(svgPreviewerContainer));
+                    }
                 }
-            }
-        }
-
-        private void SystemTheme_Click(object sender, RoutedEventArgs e)
-        {
-            PreviewContainer.RequestedTheme = ElementTheme.Default;
-        }
-
-        private void LightTheme_Click(object sender, RoutedEventArgs e)
-        {
-            PreviewContainer.RequestedTheme = ElementTheme.Light;
-        }
-
-        private void DarkTheme_Click(object sender, RoutedEventArgs e)
-        {
-            PreviewContainer.RequestedTheme = ElementTheme.Dark;
-        }
-
-        private async void TryAgain_Click(object sender, RoutedEventArgs e)
-        {
-            if (candidatesList.SelectedItem is CandidateItem item)
-            {
-                await DisplayCandidate(item);
-            }
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private async void OpenFolder_Click(object sender, RoutedEventArgs e)
-        {
-            var path = sender is MenuFlyoutItem item &&
-                       item.DataContext is CandidateItem candidateItem &&
-                       await TryResolvePathCandidateAsync(candidateItem.StringValue) is { } file ?
-                file.Path : openFolderContainer?.Tag as string;
-
-            if (path is not null)
-            {
-                NativeUtils.ShowFileInExplorer(path);
-            }
-        }
-
-        private async void Notice_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new NoticeDialog();
-            await dialog.ShowAsync();
-        }
-
-        private unsafe void SyntaxHighlightingApplied(object sender, ElementTheme e)
-        {
-            valueTextEditor.HandleSyntaxHighlightingApplied(e);
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private void DeleteCandiate_Click(object sender, RoutedEventArgs e)
-        {
-            if (_pri is not null &&
-                _selectedResource is not null &&
-                sender is MenuFlyoutItem item &&
-                item.DataContext is CandidateItem candidateItem)
-            {
-                _selectedResource.Candidates.Remove(candidateItem);
-                _pri.ResourceCandidates.Remove(candidateItem.Candidate);
-            }
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private async void EmbedPathCandidate_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuFlyoutItem item &&
-                item.DataContext is CandidateItem candidateItem
-                && await TryResolvePathCandidateAsync(candidateItem.StringValue) is { } file)
-            {
-                try
+                else if (file.FileType.ToLowerInvariant() is ".png" or ".jpg" or ".jpeg" or ".bmp" or ".gif")
                 {
-                    using var stream = await file.OpenAsync(FileAccessMode.Read, StorageOpenOptions.AllowReadersAndWriters);
-                    var buffer = new Windows.Storage.Streams.Buffer((uint)stream.Size) { Length = (uint)stream.Size };
-                    
-                    await stream.ReadAsync(buffer, (uint)stream.Size, InputStreamOptions.None);
-                    candidateItem.DataValueBuffer = buffer;
-                }
-                catch { }
-            }
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private async void SimpleRename_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuFlyoutItem item &&
-                item.DataContext is ResourceItem resourceItem)
-            {
-                var dialog = new RenameDialog(resourceItem, true);
-                await dialog.ShowAsync();
-            }
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private async void FullRename_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuFlyoutItem item &&
-                item.DataContext is ResourceItem resourceItem)
-            {
-                var dialog = new RenameDialog(resourceItem, false);
-                await dialog.ShowAsync();
-
-                resourceItem.Parent.Remove(resourceItem);
-                var parent = resourceItem.Name.GetParentName() is { } parentName ?
-                    GetOrAddResourceItem(parentName).Children :
-                    ResourceItems;
-
-                parent.Add(resourceItem);
-            }
-        }
-
-        [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
-        private async void CreateOrModifyCandidate_Click(object sender, RoutedEventArgs e)
-        {
-            if (_selectedResource is not null && _pri is not null)
-            {
-                if (sender is MenuFlyoutItem item &&
-                    item.DataContext is CandidateItem candidateItem)
-                {
-                    var dialog = new CreateOrModifyCandidateDialog(_selectedResource, candidateItem);
-                    
-                    if (await dialog.ShowAsync() is not null)
-                        await DisplayCandidate(candidateItem);
+                    BitmapImage bitmap = new BitmapImage();
+                    await bitmap.SetSourceAsync(await file.OpenReadAsync());
+                    imagePreviewer.Source = bitmap;
+                    UnloadNonErrorPreviewElements();
+                    FindName(nameof(imagePreviewerContainer));
                 }
                 else
                 {
-                    var dialog = new CreateOrModifyCandidateDialog(_selectedResource);
-
-                    if (await dialog.ShowAsync() is { } candidate)
+                    using var stream = await file.OpenReadAsync();
+                    if (await DisplayBinaryCandidate(stream, _selectedResource!.Type))
+                        return;
+                    
+                    stream.Seek(0);
+                    using var reader = new StreamReader(stream.AsStream(), Encoding.UTF8);
+                    string text = await reader.ReadToEndAsync();
+                    DisplayStringCandidate(text);
+                    FindName(nameof(valueTextEditorContainer));
+                }
+            }
+            catch (Exception ex)
+            {
+                UnloadNonErrorPreviewElements();
+                FindName(nameof(failedToOpenFileContainer));
+            }
+        }
+        private void UnloadObject(UIElement element)
+        {
+            if (element != null) element.Visibility = Visibility.Collapsed;
+        }
+        private void candidatesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (candidatesList.SelectedItem is CandidateItem item)
+            {
+                _ = DisplayCandidate(item);
+            }
+        }
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (candidatesList.SelectedItem is CandidateItem item)
+            {
+                _ = ExportCandidate(item);
+            }
+        }
+        [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
+        private async Task ExportCandidate(CandidateItem item)
+        {
+            FileSavePicker picker = new();
+            picker.SuggestedFileName = _selectedResource!.DisplayName;
+            picker.FileTypeChoices.Add("所有文件", new List<string>() { "*" });
+            picker.Initialize();
+            if (await picker.PickSaveFileAsync() is { } file)
+            {
+                try
+                {
+                    if (item.Candidate.ValueType is ResourceValueType.Path)
                     {
-                        _selectedResource.Candidates.Add(candidate);
-                        _pri.ResourceCandidates.Add(candidate);
+                        if (await TryResolvePathCandidateAsync(item.Candidate.StringValue) is StorageFile srcFile)
+                        {
+                            await srcFile.CopyAndReplaceAsync(file);
+                        }
                     }
+                    else
+                    {
+                        using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                        stream.Size = 0;
+                        var writer = new DataWriter(stream);
+                        writer.WriteBytes(item.Candidate.DataValueReference.ToArray());
+                        await writer.StoreAsync();
+                        await writer.FlushAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ContentDialog dialog = new()
+                    {
+                        Title = "错误",
+                        Content = $"导出资源失败：{ex.Message}",
+                        CloseButtonText = "确定"
+                    };
+                    await dialog.ShowAsync();
                 }
             }
         }
-
-        [DynamicWindowsRuntimeCast(typeof(ToggleMenuFlyoutItem))]
-        private async void UseWebViewForSvg_Click(object sender, RoutedEventArgs e)
+        private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            _useWebViewForSvg = ((ToggleMenuFlyoutItem)sender).IsChecked;
-
-            if (_selectedResource?.Type is ResourceType.Svg &&
-                candidatesList.SelectedItem is CandidateItem item)
+            if (candidatesList.SelectedItem is CandidateItem item)
             {
-                await DisplayCandidate(item);
+                _ = OpenCandidateFolder(item);
+            }
+        }
+        private async Task OpenCandidateFolder(CandidateItem item)
+        {
+            if (item.Candidate.ValueType is ResourceValueType.Path)
+            {
+                if (await TryResolvePathCandidateAsync(item.Candidate.StringValue) is StorageFile file)
+                {
+                    await Windows.System.Launcher.LaunchFolderAsync(await file.GetParentAsync());
+                }
+            }
+        }
+        private void EmbedPathCandidate_Click(object sender, RoutedEventArgs e)
+        {
+            if (candidatesList.SelectedItem is CandidateItem item)
+            {
+                _ = EmbedCandidate(item);
+            }
+        }
+        private async Task EmbedCandidate(CandidateItem item)
+        {
+            if (_rootFolder is null)
+            {
+                await PickRootFolder();
+            }
+            if (_rootFolder != null)
+            {
+                await _pri!.EmbedPathCandidateAsync(item.Candidate, _rootFolder);
+                RefreshResourceList_Click(null, null);
+            }
+        }
+        private void CreateOrModifyCandidate_Click(object sender, TappedRoutedEventArgs e)
+        {
+            _ = CreateOrModifyCandidate();
+        }
+        private void CreateOrModifyCandidate_Click(object sender, RoutedEventArgs e)
+        {
+            _ = CreateOrModifyCandidate();
+        }
+        [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
+        private async Task CreateOrModifyCandidate()
+        {
+            var parent = _selectedResource;
+            CandidateItem? item = candidatesList.SelectedItem as CandidateItem;
+            var dialog = new NewCandidateDialog(_pri!, parent, item);
+            if (await dialog.ShowAsync() is { } newItem)
+            {
+                if (item != null)
+                {
+                    // Modify existing
+                    _pri.ResourceCandidates.Remove(item.Candidate);
+                    parent!.Candidates.Remove(item);
+                }
+                // Add new
+                _pri.ResourceCandidates.Add(newItem.Candidate);
+                parent!.Candidates.Add(newItem);
+                candidatesList.ItemsSource = parent.Candidates;
+            }
+        }
+        private void DeleteCandiate_Click(object sender, RoutedEventArgs e)
+        {
+            if (candidatesList.SelectedItem is CandidateItem item)
+            {
+                _pri!.ResourceCandidates.Remove(item.Candidate);
+                _selectedResource!.Candidates.Remove(item);
+                candidatesList.ItemsSource = _selectedResource.Candidates;
+            }
+        }
+        private void UseWebViewForSvg_Click(object sender, RoutedEventArgs e)
+        {
+            _useWebViewForSvg = !_useWebViewForSvg;
+            ((ToggleMenuFlyoutItem)sender).IsChecked = _useWebViewForSvg;
+            if (candidatesList.SelectedItem is CandidateItem item)
+            {
+                _ = DisplayCandidate(item);
+            }
+        }
+        private void SystemTheme_Click(object sender, RoutedEventArgs e)
+        {
+            Program.Application.RequestedTheme = ElementTheme.Default;
+        }
+        private void LightTheme_Click(object sender, RoutedEventArgs e)
+        {
+            Program.Application.RequestedTheme = ElementTheme.Light;
+        }
+        private void DarkTheme_Click(object sender, RoutedEventArgs e)
+        {
+            Program.Application.RequestedTheme = ElementTheme.Dark;
+        }
+        private void SimpleRename_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.DataContext is ResourceItem resourceItem)
+            {
+                _ = RenameResource(resourceItem, false);
+            }
+        }
+        private void FullRename_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.DataContext is ResourceItem resourceItem)
+            {
+                _ = RenameResource(resourceItem, true);
+            }
+        }
+        [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
+        private async Task RenameResource(ResourceItem resourceItem, bool fullRename)
+        {
+            ContentDialog dialog = new()
+            {
+                Title = fullRename ? "完整重命名" : "简单重命名",
+                PrimaryButtonText = "确定",
+                CloseButtonText = "取消"
+            };
+            TextBox textBox = new() { PlaceholderText = "新名称" };
+            dialog.Content = textBox;
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                string newName = textBox.Text;
+                if (!string.IsNullOrEmpty(newName))
+                {
+                    resourceItem.Rename(_pri!, newName, fullRename);
+                    RefreshResourceList_Click(null, null);
+                }
+            }
+        }
+        private void Notice_Click(object sender, RoutedEventArgs e)
+        {
+            _ = new NoticeDialog().ShowAsync();
+        }
+
+        // ======================================
+        // 👇 【保留】TreeView 汉化功能菜单后台方法（真功能，不是样子）👇
+        // ======================================
+
+        /// <summary>
+        /// 右键菜单打开前校验，未加载PRI时禁用菜单项
+        /// </summary>
+        private void PriMenuFlyout_Opening(object sender, object e)
+        {
+            bool hasPri = _pri != null;
+            miExportPri.IsEnabled = hasPri;
+            miImportLang.IsEnabled = hasPri;
+            miRebuildPri.IsEnabled = hasPri;
+            miRefresh.IsEnabled = hasPri;
+        }
+
+        /// <summary>
+        /// 导出 PRI 文件
+        /// </summary>
+        [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
+        private async void ExportPriFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                FileSavePicker picker = new();
+                picker.FileTypeChoices.Add("PRI 文件", new List<string>() { ".pri" });
+                picker.SuggestedFileName = "resources_backup";
+                picker.Initialize();
+                
+                if (await picker.PickSaveFileAsync() is { } file && _pri != null)
+                {
+                    await PriHelper.ExportPriFileAsync(_pri, file);
+                    
+                    ContentDialog dialog = new()
+                    {
+                        Title = "成功",
+                        Content = "导出 PRI 文件成功",
+                        CloseButtonText = "确定"
+                    };
+                    await dialog.ShowAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                ContentDialog dialog = new()
+                {
+                    Title = "错误",
+                    Content = $"导出失败：{ex.Message}",
+                    CloseButtonText = "确定",
+                    Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
+                };
+                await dialog.ShowAsync();
             }
         }
 
-        // ======================== 新增：自定义中文右键菜单方法 ========================
-        private void ShowCustomContextMenu(object sender, ContextMenuEventArgs e)
+        /// <summary>
+        /// 导入中文汉化包
+        /// </summary>
+        [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
+        private async void ImportChineseLang_Click(object sender, RoutedEventArgs e)
         {
-            // 取消系统默认的英文右键菜单
-            e.Handled = true;
-
-            // 确保点击的是文本编辑控件
-            if (sender is not CodeEditorControl editorControl)
-                return;
-
-            // 创建自定义中文右键菜单
-            var contextMenu = new MenuFlyout();
-
-            // 1. 撤销
-            contextMenu.Items.Add(new MenuFlyoutItem
+            try
             {
-                Text = "撤销",
-                Icon = new SymbolIcon(Symbol.Undo),
-                Command = ApplicationCommands.Undo
-            });
-
-            // 2. 重做
-            contextMenu.Items.Add(new MenuFlyoutItem
+                FileOpenPicker picker = new();
+                picker.FileTypeFilter.Add(".pri");
+                picker.CommitButtonText = "导入";
+                picker.Initialize();
+                
+                if (await picker.PickSingleFileAsync() is { } file && _pri != null)
+                {
+                    await PriHelper.ImportChineseLocalizationAsync(_pri, file);
+                    
+                    ContentDialog dialog = new()
+                    {
+                        Title = "成功",
+                        Content = "中文汉化包导入完成",
+                        CloseButtonText = "确定"
+                    };
+                    await dialog.ShowAsync();
+                    
+                    // 导入后自动刷新列表
+                    RefreshResourceList_Click(null, null);
+                }
+            }
+            catch (Exception ex)
             {
-                Text = "重做",
-                Icon = new SymbolIcon(Symbol.Redo),
-                Command = ApplicationCommands.Redo
-            });
+                ContentDialog dialog = new()
+                {
+                    Title = "错误",
+                    Content = $"导入失败：{ex.Message}",
+                    CloseButtonText = "确定",
+                    Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
+                };
+                await dialog.ShowAsync();
+            }
+        }
 
-            // 分隔线
-            contextMenu.Items.Add(new MenuFlyoutSeparator());
-
-            // 3. 剪切
-            contextMenu.Items.Add(new MenuFlyoutItem
+        /// <summary>
+        /// 重新生成 PRI
+        /// </summary>
+        [DynamicWindowsRuntimeCast(typeof(ControlTemplate))]
+        private async void RebuildPri_Click(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                Text = "剪切",
-                Icon = new SymbolIcon(Symbol.Cut),
-                Command = ApplicationCommands.Cut
-            });
-
-            // 4. 复制
-            contextMenu.Items.Add(new MenuFlyoutItem
+                if (_pri != null)
+                {
+                    await PriHelper.RebuildPriWithChineseAsync(_pri);
+                    
+                    ContentDialog dialog = new()
+                    {
+                        Title = "成功",
+                        Content = "PRI 重新生成并应用中文成功",
+                        CloseButtonText = "确定"
+                    };
+                    await dialog.ShowAsync();
+                }
+            }
+            catch (Exception ex)
             {
-                Text = "复制",
-                Icon = new SymbolIcon(Symbol.Copy),
-                Command = ApplicationCommands.Copy
-            });
+                ContentDialog dialog = new()
+                {
+                    Title = "错误",
+                    Content = $"生成失败：{ex.Message}",
+                    CloseButtonText = "确定",
+                    Template = (ControlTemplate)Program.Application.Resources["ScrollableContentDialogTemplate"]
+                };
+                await dialog.ShowAsync();
+            }
+        }
 
-            // 5. 粘贴
-            contextMenu.Items.Add(new MenuFlyoutItem
+        /// <summary>
+        /// 刷新资源列表
+        /// </summary>
+        private void RefreshResourceList_Click(object sender, RoutedEventArgs e)
+        {
+            if (_pri != null)
             {
-                Text = "粘贴",
-                Icon = new SymbolIcon(Symbol.Paste),
-                Command = ApplicationCommands.Paste
-            });
+                LoadPri(_pri);
+            }
+        }
 
-            // 6. 删除
-            contextMenu.Items.Add(new MenuFlyoutItem
+        // ======================================
+        // 👇 【新增】文本编辑器中文右键菜单后台方法（替换系统英文菜单）👇
+        // ======================================
+
+        /// <summary>
+        /// 编辑菜单打开前更新按钮状态，和系统菜单保持一致
+        /// </summary>
+        private void EditorMenuFlyout_Opening(object sender, object e)
+        {
+            if (valueTextEditor?.Editor != null)
             {
-                Text = "删除",
-                Icon = new SymbolIcon(Symbol.Delete),
-                Command = ApplicationCommands.Delete
-            });
+                var editor = valueTextEditor.Editor;
+                // 撤销/重做状态
+                miUndo.IsEnabled = editor.CanUndo;
+                miRedo.IsEnabled = editor.CanRedo;
+                // 选中状态
+                bool hasSelection = editor.SelectionLength > 0;
+                miCut.IsEnabled = hasSelection;
+                miCopy.IsEnabled = hasSelection;
+                miDelete.IsEnabled = hasSelection;
+                // 粘贴状态
+                miPaste.IsEnabled = Clipboard.HasContent();
+                // 全选状态
+                miSelectAll.IsEnabled = editor.TextLength > 0;
+            }
+        }
 
-            // 分隔线
-            contextMenu.Items.Add(new MenuFlyoutSeparator());
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.Undo();
+        }
 
-            // 7. 全选
-            contextMenu.Items.Add(new MenuFlyoutItem
-            {
-                Text = "全选",
-                Icon = new SymbolIcon(Symbol.SelectAll),
-                Command = ApplicationCommands.SelectAll
-            });
+        private void Redo_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.Redo();
+        }
 
-            // 在鼠标点击位置显示自定义菜单
-            contextMenu.ShowAt(editorControl, e.GetPosition(editorControl));
+        private void Cut_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.Cut();
+        }
+
+        private void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.Copy();
+        }
+
+        private void Paste_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.Paste();
+        }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.Delete();
+        }
+
+        private void SelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            valueTextEditor.Editor.SelectAll();
         }
     }
 }
