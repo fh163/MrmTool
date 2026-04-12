@@ -1,4 +1,4 @@
-# MrmTool 中文汉化版
+# MrmTool 中文汉化版 [原MrmTool作者](https://github.com/ahmed605/MrmLib)
 
 **MrmTool** 是一个用于查看和编辑 **PRI** 文件的工具，它允许你创建、修改和删除 **PRI** 资源，同时还可以预览它们的内容。
 
@@ -15,6 +15,7 @@
 - Windows App SDK / WinUI 3 (`mrm_pri3`)
 - UWP vNext (`mrm_vnxt`)
 
+- 
 ### 截图
 
 ![MrmTool, with the resource directory tree view on the left, the top right showing an embedded data qualifier of the selected resource, and the bottom right showing the embedded XAML code](docs/screenshot.png)
