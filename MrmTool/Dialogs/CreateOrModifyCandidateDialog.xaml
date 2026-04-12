@@ -1,4 +1,4 @@
-﻿<ContentDialog
+<ContentDialog
     x:Class="MrmTool.Dialogs.CreateOrModifyCandidateDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,9 +9,9 @@
     xmlns:mrm="using:MrmLib"
     xmlns:common="using:MrmTool.Common"
     mc:Ignorable="d"
-    Title="Create New Candidate"
-    PrimaryButtonText="Create"
-    CloseButtonText="Cancel"
+    Title="新建候选"
+    PrimaryButtonText="创建"
+    CloseButtonText="取消"
     DefaultButton="Primary"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
     CloseButtonClick="ContentDialog_CloseButtonClick"
@@ -40,11 +40,11 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 
-                <TextBlock Text="Type" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,5,0" Grid.Column="0"/>
+                <TextBlock Text="类型" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,5,0" Grid.Column="0"/>
                 <ComboBox x:Name="typeBox" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Stretch" Margin="5,5,0,0" Grid.Column="1" SelectionChanged="typeBox_SelectionChanged">
-                    <ComboBoxItem Content="String"/>
-                    <ComboBoxItem Content="File Path"/>
-                    <ComboBoxItem Content="Embedded Data"/>
+                    <ComboBoxItem Content="字符串"/>
+                    <ComboBoxItem Content="文件路径"/>
+                    <ComboBoxItem Content="嵌入数据"/>
                 </ComboBox>
             </Grid>
 
@@ -54,8 +54,8 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Content:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
-                <Button HorizontalAlignment="Right" Content="Import from file" MinWidth="150" Grid.Column="1" Margin="5,0,0,0" Click="ImportButton_Click"/>
+                <TextBlock Text="内容：" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+                <Button HorizontalAlignment="Right" Content="从文件导入" MinWidth="150" Grid.Column="1" Margin="5,0,0,0" Click="ImportButton_Click"/>
             </Grid>
 
             <Grid x:Name="pathContainer" x:Load="False" Grid.Row="1" VerticalAlignment="Top" Margin="0,10,0,0">
@@ -64,8 +64,8 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="File Path" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
-                <TextBox x:Name="pathBox" Text="Assets\New\Resource.png" IsSpellCheckEnabled="False" PlaceholderText="File path in relation to PRI root folder" TextChanged="pathBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,0" Grid.Column="1"/>
+                <TextBlock Text="文件路径" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+                <TextBox x:Name="pathBox" Text="Assets\New\Resource.png" IsSpellCheckEnabled="False" PlaceholderText="相对于PRI根目录的文件路径" TextChanged="pathBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,0" Grid.Column="1"/>
             </Grid>
 
             <Grid x:Name="dataContainer" x:Load="False" Grid.Row="1" VerticalAlignment="Top" Margin="0,10,0,0">
@@ -74,17 +74,17 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Data Source" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+                <TextBlock Text="数据源" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
                 <ComboBox x:Name="sourceBox" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Stretch" Margin="5,0,0,0" Grid.Row="1" Grid.Column="1" SelectionChanged="sourceBox_SelectionChanged">
-                    <ComboBoxItem Content="File"/>
-                    <ComboBoxItem Content="Text String (UTF-8)"/>
-                    <ComboBoxItem Content="Text String (UTF-16LE)"/>
+                    <ComboBoxItem Content="文件"/>
+                    <ComboBoxItem Content="文本字符串（UTF-8）"/>
+                    <ComboBoxItem Content="文本字符串（UTF-16LE）"/>
                 </ComboBox>
             </Grid>
 
             <winuieditor:CodeEditorControl x:Name="editorControl" x:Load="False" Grid.Row="2" Padding="-10,12,0,0" HorizontalAlignment="Stretch" MinHeight="200"/>
             <Button x:Name="browseButton" x:Load="False" HorizontalAlignment="Stretch" Margin="0,10,0,0" Grid.Row="2" Click="browseButton_Click">
-                <TextBlock x:Name="browseBlock" Text="Browse..." TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                <TextBlock x:Name="browseBlock" Text="浏览..." TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
             </Button>
 
             <Grid Grid.Row="3" VerticalAlignment="Top" Margin="0,10,0,0">
@@ -93,7 +93,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Qualifiers:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+                <TextBlock Text="限定符：" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Margin="5,0,0,0">
                     <Button x:Name="deleteQualifierButton" IsEnabled="False" Click="deleteQualifierButton_Click" Margin="0,0,5,0" HorizontalAlignment="Left">
                         <SymbolIcon Symbol="Delete" />
@@ -128,45 +128,45 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Attribute" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+            <TextBlock Text="属性" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
             <ComboBox x:Name="attributeBox" Grid.Row="0" SelectionChanged="qualifierComboBox_TextChanged" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Stretch" Margin="5,5,0,5" Grid.Column="1">
-                <ComboBoxItem Content="Language"/>
-                <ComboBoxItem Content="Contrast"/>
-                <ComboBoxItem Content="Scale"/>
-                <ComboBoxItem Content="HomeRegion"/>
-                <ComboBoxItem Content="TargetSize"/>
-                <ComboBoxItem Content="LayoutDirection"/>
-                <ComboBoxItem Content="Theme"/>
-                <ComboBoxItem Content="AlternateForm"/>
-                <ComboBoxItem Content="DXFeatureLevel"/>
-                <ComboBoxItem Content="Configuration"/>
-                <ComboBoxItem Content="DeviceFamily"/>
+                <ComboBoxItem Content="语言"/>
+                <ComboBoxItem Content="对比度"/>
+                <ComboBoxItem Content="缩放"/>
+                <ComboBoxItem Content="区域"/>
+                <ComboBoxItem Content="目标大小"/>
+                <ComboBoxItem Content="布局方向"/>
+                <ComboBoxItem Content="主题"/>
+                <ComboBoxItem Content="备用形式"/>
+                <ComboBoxItem Content="DX功能级别"/>
+                <ComboBoxItem Content="配置"/>
+                <ComboBoxItem Content="设备系列"/>
             </ComboBox>
 
-            <TextBlock Text="Operator" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+            <TextBlock Text="运算符" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
             <ComboBox x:Name="operatorBox" Grid.Row="1" SelectionChanged="qualifierComboBox_TextChanged" VerticalAlignment="Top" SelectedIndex="10" HorizontalAlignment="Stretch" Margin="5,0,0,5" Grid.Column="1">
-                <ComboBoxItem Content="False"/>
-                <ComboBoxItem Content="True"/>
-                <ComboBoxItem Content="AttributeDefined"/>
-                <ComboBoxItem Content="AttributeUndefined"/>
-                <ComboBoxItem Content="NotEqual"/>
-                <ComboBoxItem Content="NoMatch"/>
-                <ComboBoxItem Content="Less"/>
-                <ComboBoxItem Content="LessOrEqual"/>
-                <ComboBoxItem Content="Greater"/>
-                <ComboBoxItem Content="GreaterOrEqual"/>
-                <ComboBoxItem Content="Match"/>
-                <ComboBoxItem Content="Equal"/>
+                <ComboBoxItem Content="假"/>
+                <ComboBoxItem Content="真"/>
+                <ComboBoxItem Content="属性已定义"/>
+                <ComboBoxItem Content="属性未定义"/>
+                <ComboBoxItem Content="不等于"/>
+                <ComboBoxItem Content="不匹配"/>
+                <ComboBoxItem Content="小于"/>
+                <ComboBoxItem Content="小于等于"/>
+                <ComboBoxItem Content="大于"/>
+                <ComboBoxItem Content="大于等于"/>
+                <ComboBoxItem Content="匹配"/>
+                <ComboBoxItem Content="等于"/>
             </ComboBox>
 
-            <TextBlock Text="Value" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
-            <TextBox x:Name="valueBox" Text="en-US" Grid.Row="2" IsSpellCheckEnabled="False" PlaceholderText="Qualifier value" TextChanged="qualifierBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,5" Grid.Column="1"/>
+            <TextBlock Text="值" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+            <TextBox x:Name="valueBox" Text="en-US" Grid.Row="2" IsSpellCheckEnabled="False" PlaceholderText="限定符值" TextChanged="qualifierBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,5" Grid.Column="1"/>
 
-            <TextBlock Text="Priority" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
-            <TextBox x:Name="priorityBox" Text="0" Grid.Row="3" IsSpellCheckEnabled="False" PlaceholderText="Priority (integer)" TextChanged="qualifierBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,5" Grid.Column="1"/>
+            <TextBlock Text="优先级" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+            <TextBox x:Name="priorityBox" Text="0" Grid.Row="3" IsSpellCheckEnabled="False" PlaceholderText="优先级（整数）" TextChanged="qualifierBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,5" Grid.Column="1"/>
 
-            <TextBlock Text="Fallback Score" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
-            <TextBox x:Name="fallbackBox" Text="0.0" Grid.Row="4" IsSpellCheckEnabled="False" PlaceholderText="Fallback Score (double)" TextChanged="qualifierBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,0" Grid.Column="1"/>
+            <TextBlock Text="降级分数" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,5,0" Grid.Column="0"/>
+            <TextBox x:Name="fallbackBox" Text="0.0" Grid.Row="4" IsSpellCheckEnabled="False" PlaceholderText="降级分数（小数）" TextChanged="qualifierBox_TextChanged" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,0,0" Grid.Column="1"/>
         </Grid>
     </Grid>
 </ContentDialog>
