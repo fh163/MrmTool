@@ -55,10 +55,14 @@ jobs:
           echo "自动找到输出目录: $publishDir"
           echo "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-      # 直接上传publish目录下的所有文件
-      # 所有文件都会直接放在zip的根目录，没有任何嵌套
-      - name: 上传最终编译文件
+      # 只上传和作者原版一致的4个核心文件，过滤掉多余的调试/配置文件
+      - name: 上传最终4个核心文件
         uses: actions/upload-artifact@v4
         with:
           name: MrmTool-x64
-          path: ${{ env.PUBLISH_DIR }}/*
+          path: |
+            ${{ env.PUBLISH_DIR }}/MrmTool.exe
+            ${{ env.PUBLISH_DIR }}/MrmLib.dll
+            ${{ env.PUBLISH_DIR }}/WinUIEditor.dll
+            ${{ env.PUBLISH_DIR }}/resources.pri
+            # path: ${{ env.PUBLISH_DIR }}/*
