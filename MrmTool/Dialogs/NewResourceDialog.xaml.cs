@@ -1,4 +1,4 @@
-﻿using MrmLib;
+using MrmLib;
 using MrmTool.Common;
 using MrmTool.Models;
 using MrmTool.Scintilla;
@@ -39,9 +39,9 @@ namespace MrmTool.Dialogs
                     {
                         ContentDialog dialog = new()
                         {
-                            Title = "Error",
-                            Content = "A resource with the same name already exists",
-                            CloseButtonText = "OK",
+                            Title = "错误",
+                            Content = "已存在同名的资源",
+                            CloseButtonText = "确定",
                             DefaultButton = ContentDialogButton.Close
                         };
 
@@ -212,7 +212,7 @@ namespace MrmTool.Dialogs
 
             if (_parentName is not null)
             {
-                nameBox.Text = $"{_parentName}/NewResource";
+                nameBox.Text = $"{_parentName}/新资源";
             }
         }
 
