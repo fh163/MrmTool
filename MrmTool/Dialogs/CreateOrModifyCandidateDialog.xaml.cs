@@ -1,4 +1,4 @@
-﻿using MrmLib;
+using MrmLib;
 using MrmTool.Common;
 using MrmTool.Models;
 using MrmTool.Scintilla;
@@ -40,8 +40,8 @@ namespace MrmTool.Dialogs
 
             if (candidate is not null)
             {
-                Title = "Modify Candidate";
-                PrimaryButtonText = "Modify";
+                Title = "修改候选";
+                PrimaryButtonText = "修改";
             }
         }
 
@@ -87,9 +87,9 @@ namespace MrmTool.Dialogs
                     {
                         ContentDialog dialog = new()
                         {
-                            Title = "Error",
-                            Content = "A candidate with the same qualifiers already exists for this resource.",
-                            CloseButtonText = "OK",
+                            Title = "错误",
+                            Content = "该资源已存在具有相同限定符的候选。",
+                            CloseButtonText = "确定",
                             DefaultButton = ContentDialogButton.Close
                         };
 
@@ -171,9 +171,9 @@ namespace MrmTool.Dialogs
         {
             UnloadObject(qualifierGrid);
             candidateGrid.Visibility = Visibility.Visible;
-            Title = _candidate is not null ? "Modify Candidate" : "Create New Candidate";
-            PrimaryButtonText = _candidate is not null ? "Modify" : "Create";
-            CloseButtonText = "Cancel";
+            Title = _candidate is not null ? "修改候选" : "新建候选";
+            PrimaryButtonText = _candidate is not null ? "修改" : "创建";
+            CloseButtonText = "取消";
             DefaultButton = ContentDialogButton.Primary;
 
             ValidateInputs();
@@ -391,7 +391,7 @@ namespace MrmTool.Dialogs
                         {
                             sourceBox.SelectedIndex = 0;
                             _sourceBuffer = _candidate.Candidate.DataValueReference;
-                            browseBlock.Text = "(Embedded Data)";
+                            browseBlock.Text = "(已嵌入数据)";
                         }
 
                         break;
@@ -435,9 +435,9 @@ namespace MrmTool.Dialogs
             candidateGrid.Visibility = Visibility.Collapsed;
             FindName(nameof(qualifierGrid));
 
-            Title = "Add New Qualifier";
-            PrimaryButtonText = "Add Qualifier";
-            CloseButtonText = "Go Back";
+            Title = "添加新限定符";
+            PrimaryButtonText = "添加限定符";
+            CloseButtonText = "返回";
             DefaultButton = ContentDialogButton.Primary;
 
             ValidateQualifierInputs();
