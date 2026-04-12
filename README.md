@@ -4,7 +4,7 @@
 
 **MrmTool** 依赖于 [MrmLib](https://github.com/ahmed605/MrmLib) 来处理和修改 **PRI** 文件。
 
-它还包含一个 **XBF**（XAML 二进制格式）反编译器（目前还没有重新编译器），它当前使用的是修改版的 [XbfAnalyzer](https://github.com/chausner/XbfAnalyzer)（该修改版基于旧的提交，并非最新版本），不过我们已经[计划](https://github.com/ahmed605/MrmTool/blob/f48c57a23fb1c53ac82dcbd3e9b0418206740dca/MrmTool/PriPage.xaml.cs#L472-L475)将其替换为基于 **WinUI 3** 的 **XBF** 解析器的全新反编译/重编译工具。
+它还包含一个 **XBF**（XAML 二进制格式）反编译器（目前还没有重新编译器），它当前使用的是修改版的 [XbfAnalyzer](https://github.com/chausner/XbfAnalyzer)（该修改版基于旧的提交，并非最新版本），不过我们已经[计划](https://github.com/fh163/MrmTool/blob/f48c57a23fb1c53ac82dcbd3e9b0418206740dca/MrmTool/PriPage.xaml.cs#L472-L475)将其替换为基于 **WinUI 3** 的 **XBF** 解析器的全新反编译/重编译工具。
 
 **MrmTool** 支持以下 **PRI** 版本：
 - Windows 8 (`mrm_pri0`)
