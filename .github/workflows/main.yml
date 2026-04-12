@@ -1,0 +1,73 @@
+name: Build MrmTool
+on:
+  # 关闭自动编译：提交汉化不触发打包
+  # push:
+  #   branches: [ master ]
+  
+  # 仅手动点击触发编译
+  workflow_dispatch:
+
+# ==============================================
+# 👉 手动编译教程（忘记操作看这里）
+# 1. 打开你的GitHub仓库 → 点击顶部「Actions」
+# 2. 左侧选择「Build MrmTool」工作流
+# 3. 右上角点击「Run workflow」→ 再次点击绿色按钮确认
+# 4. 等待编译完成 → 下载Artifact → 得到和作者原版一致的4文件zip
+# ==============================================
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: 'latest'
+
+      - name: Remove global.json
+        run: |
+          if (Test-Path global.json) { Remove-Item global.json -Force }
+          if (Test-Path "MrmTool\global.json") { Remove-Item "MrmTool\global.json" -Force }
+
+      - name: Restore NuGet
+        run: msbuild MrmTool.sln /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RestorePackagesConfig=true
+
+      - name: 发布自包含单文件版本（和作者原版完全一致）
+        run: msbuild MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64
+
+      - name: 自动定位核心文件路径
+        run: |
+          # 递归搜索编译生成的主exe，自动找到输出目录
+          $exeFile = Get-ChildItem -Path "MrmTool\bin" -Recurse -Filter "MrmTool.exe" | Select-Object -First 1
+          if (-not $exeFile) {
+            Write-Error "没有找到编译生成的MrmTool.exe，请检查编译日志"
+            exit 1
+          }
+          $publishDir = $exeFile.Directory.FullName
+          echo "自动找到输出目录: $publishDir"
+          echo "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
+      - name: 仅打包4个核心文件（1:1复刻作者原版，单层根目录）
+        run: |
+          # 直接把4个核心文件打包到zip的根目录，完全去掉临时目录，彻底避免嵌套
+          $files = @(
+            "$env:PUBLISH_DIR\MrmTool.exe",
+            "$env:PUBLISH_DIR\MrmLib.dll",
+            "$env:PUBLISH_DIR\WinUIEditor.dll",
+            "$env:PUBLISH_DIR\resources.pri"
+          )
+          Compress-Archive -Path $files -DestinationPath "MrmTool_x64.zip" -Force
+
+      - name: 上传最终4文件zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: MrmTool-x64
+          path: MrmTool_x64.zip
