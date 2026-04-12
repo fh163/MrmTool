@@ -166,9 +166,6 @@ selectorsContract5NotPresent:Resource="{StaticResource ResourceTemplateOld}" />
 <ColumnDefinition Width="16" />
 <ColumnDefinition />
 </Grid.ColumnDefinitions>
-<!-- ====================================== -->
-<!-- 👇 只加了这个ContextFlyout，其他TreeView的代码完全是你原来的！ -->
-<!-- ====================================== -->
 <muxc:TreeView x:Name="treeView" Grid.Column="0" CanDragItems="False" CanReorderItems="False" ItemsSource="{x:Bind ResourceItems}" ItemTemplateSelector="{StaticResource ResourceItemTemplateSelector}" SelectionChanged="treeView_SelectionChanged">
     <treeView.ContextFlyout>
         <MenuFlyout Opening="PriMenuFlyout_Opening">
@@ -294,6 +291,7 @@ d:IsOptimized="True" />
 <interactivity:ControlStoryboardAction Storyboard="{StaticResource UnhoverBoard}" ControlStoryboardOption="Play" />
 </mbehaviors:PointerExitedBehavior>
 </interactivity:Interaction.Behaviors>
+</Viewbox>
 </Grid>
 </Border>
 <Border Grid.Row="2" Margin="16,0,10.5,10.5" BorderThickness="0.5" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="8">
@@ -301,9 +299,6 @@ d:IsOptimized="True" />
 <SolidColorBrush Color="{ThemeResource TextFillColorSecondary}" Opacity="0.4" />
 </Border.BorderBrush>
 <Grid>
-<!-- ====================================== -->
-<!-- 👇 只加了这个ContextFlyout，其他编辑器的代码完全是你原来的！ -->
-<!-- ====================================== -->
 <winuieditor:CodeEditorControl d:Visibility="Collapsed" Padding="-10,12,0,0" x:Name="valueTextEditor" SyntaxHighlightingApplied="SyntaxHighlightingApplied" x:Load="False">
     <winuieditor:CodeEditorControl.ContextFlyout>
         <MenuFlyout Opening="EditorMenuFlyout_Opening">
@@ -347,12 +342,10 @@ d:IsOptimized="True" />
         </MenuFlyout>
     </winuieditor:CodeEditorControl.ContextFlyout>
 </winuieditor:CodeEditorControl>
-<!-- Path error: Invalid root -->
 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="invalidRootPathContainer">
 <TextBlock TextWrapping="Wrap" Text="根目录不包含该文件，你可以在下方指定其他目录。" HorizontalAlignment="Center" />
 <Button Content="设置根目录" HorizontalAlignment="Center" Margin="0,10,0,0" Click="SetRootFolder_Click" />
 </StackPanel>
-<!-- Path error: Failed to open file -->
 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20" x:Load="False" Visibility="Collapsed" x:Name="failedToOpenFileContainer">
 <TextBlock TextWrapping="Wrap" HorizontalAlignment="Center" >
 无法打开 <Bold>&quot;<Run x:Name="failedFileNameRun" />&quot;</Bold>，请确保文件有效、可访问，且没有被其他程序占用。
@@ -362,17 +355,14 @@ d:IsOptimized="True" />
 </TextBlock>
 <Button Content="重试" HorizontalAlignment="Center" Margin="0,20,0,0" Click="TryAgain_Click" />
 </StackPanel>
-<!-- Path fallback -->
 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="openFolderContainer">
 <Button Content="在资源管理器中显示" HorizontalAlignment="Center" Click="OpenFolder_Click" />
 </StackPanel>
-<!-- Embedded data fallback -->
 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="exportContainer">
 <TextBlock x:Name="fileSizeLabel" HorizontalAlignment="Center" />
 <Button Content="导出到本地磁盘" HorizontalAlignment="Center" Margin="0,10,0,0" Click="ExportButton_Click" />
 </StackPanel>
-<!-- XBF fallback -->
-<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20" x:Load="False" Visibility="Collapsed" x:Name="xbfFallbackContainer">
+<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="xbfFallbackContainer">
 <TextBlock TextWrapping="Wrap" HorizontalAlignment="Center" >
 无法反编译 <Bold>&quot;<Run x:Name="xbfFileNameRun" />&quot;</Bold>。
 <LineBreak />
@@ -381,11 +371,9 @@ d:IsOptimized="True" />
 </TextBlock>
 <Button Content="导出到本地磁盘" HorizontalAlignment="Center" Margin="0,20,0,0" Click="ExportButton_Click" />
 </StackPanel>
-<!-- Image Previewer -->
 <ScrollViewer x:Name="imagePreviewerContainer" d:Visibility="Collapsed" x:Load="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" ZoomMode="Enabled" IsZoomInertiaEnabled="True">
 <Image x:Name="imagePreviewer" Stretch="None" />
 </ScrollViewer>
-<!-- SVG Previewer -->
 <ScrollViewer x:Name="svgPreviewerContainer" d:Visibility="Collapsed" x:Load="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" ZoomMode="Enabled" IsZoomInertiaEnabled="True">
 <ContentPresenter x:Name="svgPreviewer" />
 </ScrollViewer>
