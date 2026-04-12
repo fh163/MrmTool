@@ -331,11 +331,12 @@
                                                 <SymbolIcon Symbol="Paste" />
                                             </MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
+                                        <!-- 👇 这里之前写错了标签，现在改对了！ -->
                                         <MenuFlyoutItem x:Name="miDelete" Text="删除" Click="Delete_Click">
                                             <MenuFlyoutItem.Icon>
                                                 <SymbolIcon Symbol="Delete" />
                                             </MenuFlyoutItem.Icon>
-                                        </MenuFlyout>
+                                        </MenuFlyoutItem>
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem x:Name="miSelectAll" Text="全选" Click="SelectAll_Click">
                                             <MenuFlyoutItem.Icon>
