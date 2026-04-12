@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 
 # ==============================================
-# 👉 手动编译教程
+# 👉 手动编译教程（忘记操作看这里）
 # 1. 打开你的GitHub仓库 → 点击顶部「Actions」
 # 2. 左侧选择「Build MrmTool」工作流
 # 3. 右上角点击「Run workflow」→ 再次点击绿色按钮确认
-# 4. 等待编译完成 → 下载Artifact
+# 4. 等待编译完成 → 下载Artifact → 解压后直接就是4个核心文件
 # ==============================================
 
 jobs:
@@ -37,8 +37,24 @@ jobs:
           if (Test-Path global.json) { Remove-Item global.json -Force }
           if (Test-Path "MrmTool\global.json") { Remove-Item "MrmTool\global.json" -Force }
 
+      # 关键新增步骤：编译前强制清理所有缓存（bin/obj目录）
+      - name: 彻底清理编译缓存（解决汉化不生效）
+        run: |
+          # 删除项目下所有bin/obj目录，确保编译全新版本
+          Get-ChildItem -Path "MrmTool" -Name "bin" -Directory -Recurse | ForEach-Object {
+              Remove-Item -Path "MrmTool\$_" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          Get-ChildItem -Path "MrmTool" -Name "obj" -Directory -Recurse | ForEach-Object {
+              Remove-Item -Path "MrmTool\$_" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          Write-Host "✅ 已清空所有bin/obj缓存目录"
+
       - name: Restore NuGet
         run: msbuild MrmTool.sln /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RestorePackagesConfig=true
+
+      # 新增Clean步骤：再次确保编译环境干净
+      - name: 清理项目（Clean）
+        run: msbuild MrmTool.sln /t:Clean /p:Configuration=Release /p:Platform=x64
 
       - name: 发布自包含单文件版本
         run: msbuild MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64
@@ -55,7 +71,7 @@ jobs:
           echo "自动找到输出目录: $publishDir"
           echo "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-      # 只上传和作者原版一致的4个核心文件，过滤掉多余的调试/配置文件
+      # 只上传4个核心文件
       - name: 上传最终4个核心文件
         uses: actions/upload-artifact@v4
         with:
@@ -65,4 +81,4 @@ jobs:
             ${{ env.PUBLISH_DIR }}/MrmLib.dll
             ${{ env.PUBLISH_DIR }}/WinUIEditor.dll
             ${{ env.PUBLISH_DIR }}/resources.pri
-            # path: ${{ env.PUBLISH_DIR }}/*
+        # path: ${{ env.PUBLISH_DIR }}/*  # 备用：打包所有文件
