@@ -295,8 +295,10 @@
                         <SolidColorBrush Color="{ThemeResource TextFillColorSecondary}" Opacity="0.4"/>
                     </Border.BorderBrush>
                     <Grid>
-                        <!-- String values -->
-                        <winuieditor:CodeEditorControl d:Visibility="Collapsed" Padding="-10,12,0,0" x:Name="valueTextEditor" SyntaxHighlightingApplied="SyntaxHighlightingApplied" x:Load="False" />
+                        <!-- String values - 核心改动：添加ContextMenuOpening事件绑定 -->
+                        <winuieditor:CodeEditorControl d:Visibility="Collapsed" Padding="-10,12,0,0" x:Name="valueTextEditor" 
+                                                       SyntaxHighlightingApplied="SyntaxHighlightingApplied" x:Load="False"
+                                                       ContextMenuOpening="ShowCustomContextMenu"/>
                         
                         <!-- Path error: Invalid root -->
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" d:Visibility="Collapsed" x:Load="False" x:Name="invalidRootPathContainer">
