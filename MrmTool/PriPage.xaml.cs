@@ -18,6 +18,7 @@ using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Input; // 新增：右键菜单事件所需命名空间
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -918,6 +919,85 @@ namespace MrmTool
             {
                 await DisplayCandidate(item);
             }
+        }
+
+        // ======================== 新增：自定义中文右键菜单方法 ========================
+        private void ShowCustomContextMenu(object sender, ContextMenuEventArgs e)
+        {
+            // 取消系统默认的英文右键菜单
+            e.Handled = true;
+
+            // 确保点击的是文本编辑控件
+            if (sender is not CodeEditorControl editorControl)
+                return;
+
+            // 创建自定义中文右键菜单
+            var contextMenu = new MenuFlyout();
+
+            // 1. 撤销
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "撤销",
+                Icon = new SymbolIcon(Symbol.Undo),
+                Command = ApplicationCommands.Undo
+            });
+
+            // 2. 重做
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "重做",
+                Icon = new SymbolIcon(Symbol.Redo),
+                Command = ApplicationCommands.Redo
+            });
+
+            // 分隔线
+            contextMenu.Items.Add(new MenuFlyoutSeparator());
+
+            // 3. 剪切
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "剪切",
+                Icon = new SymbolIcon(Symbol.Cut),
+                Command = ApplicationCommands.Cut
+            });
+
+            // 4. 复制
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "复制",
+                Icon = new SymbolIcon(Symbol.Copy),
+                Command = ApplicationCommands.Copy
+            });
+
+            // 5. 粘贴
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "粘贴",
+                Icon = new SymbolIcon(Symbol.Paste),
+                Command = ApplicationCommands.Paste
+            });
+
+            // 6. 删除
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "删除",
+                Icon = new SymbolIcon(Symbol.Delete),
+                Command = ApplicationCommands.Delete
+            });
+
+            // 分隔线
+            contextMenu.Items.Add(new MenuFlyoutSeparator());
+
+            // 7. 全选
+            contextMenu.Items.Add(new MenuFlyoutItem
+            {
+                Text = "全选",
+                Icon = new SymbolIcon(Symbol.SelectAll),
+                Command = ApplicationCommands.SelectAll
+            });
+
+            // 在鼠标点击位置显示自定义菜单
+            contextMenu.ShowAt(editorControl, e.GetPosition(editorControl));
         }
     }
 }
