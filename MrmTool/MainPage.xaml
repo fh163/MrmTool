@@ -10,12 +10,12 @@
 
     <Grid x:Name="MainGrid" AllowDrop="True" DragOver="MainGrid_DragOver" Drop="MainGrid_Drop" Background="Transparent">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="MrmTool" FontWeight="SemiLight" FontSize="42" />
-            <Button Content="Open PRI File" HorizontalAlignment="Center" Margin="0,15,0,0" Click="OnOpenFileClicked" />
+            <TextBlock Text="PRI编辑工具" FontWeight="SemiLight" FontSize="42" />
+            <Button Content="打开PRI文件" HorizontalAlignment="Center" Margin="0,15,0,0" Click="OnOpenFileClicked" />
         </StackPanel>
 
         <HyperlinkButton
-            Content="Third Party Notices"
+            Content="第三方声明"
             VerticalAlignment="Bottom"
             HorizontalAlignment="Right"
             Margin="0,0,15,10"
