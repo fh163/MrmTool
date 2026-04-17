@@ -17,20 +17,46 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8 SDK
+      - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
+          include-prerelease: true
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: 'latest'
+          vs-version: '[18.0,19.0)'
+
+      - name: Resolve Visual Studio MSBuild path
+        shell: powershell
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) {
+            Write-Error "vswhere not found: $vswhere"
+            exit 1
+          }
+          $vsInstall = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -version "[18.0,19.0)" -property installationPath
+          if (-not $vsInstall) {
+            Write-Error "Visual Studio 18.x with MSBuild component not found on this runner."
+            exit 1
+          }
+          $vsDisplay = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -version "[18.0,19.0)" -property displayName
+          $vsVersion = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -version "[18.0,19.0)" -property catalog_productDisplayVersion
+          $msbuild = Join-Path $vsInstall "MSBuild\Current\Bin\MSBuild.exe"
+          if (-not (Test-Path $msbuild)) {
+            Write-Error "MSBuild.exe not found at: $msbuild"
+            exit 1
+          }
+          "MSBUILD_EXE=$msbuild" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "VS_INSTALL=$vsInstall" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Using MSBuild: $msbuild"
+          Write-Host "Visual Studio: $vsDisplay $vsVersion"
 
       - name: Remove global.json
         run: |
@@ -40,24 +66,21 @@ jobs:
       # 关键新增步骤：编译前强制清理所有缓存（bin/obj目录）
       - name: 彻底清理编译缓存（解决汉化不生效）
         run: |
-          # 删除项目下所有bin/obj目录，确保编译全新版本
-          Get-ChildItem -Path "MrmTool" -Name "bin" -Directory -Recurse | ForEach-Object {
-              Remove-Item -Path "MrmTool\$_" -Recurse -Force -ErrorAction SilentlyContinue
-          }
-          Get-ChildItem -Path "MrmTool" -Name "obj" -Directory -Recurse | ForEach-Object {
-              Remove-Item -Path "MrmTool\$_" -Recurse -Force -ErrorAction SilentlyContinue
-          }
+          # 删除项目下所有 bin/obj 目录，确保编译全新版本
+          Get-ChildItem -Path "MrmTool" -Directory -Recurse |
+            Where-Object { $_.Name -in @("bin", "obj") } |
+            ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }
           Write-Host "✅ 已清空所有bin/obj缓存目录"
 
       - name: Restore NuGet
-        run: msbuild MrmTool.sln /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RestorePackagesConfig=true
+        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Restore /p:Configuration=Release /p:Platform=x64 /p:RestorePackagesConfig=true'
 
       # 新增Clean步骤：再次确保编译环境干净
       - name: 清理项目（Clean）
-        run: msbuild MrmTool.sln /t:Clean /p:Configuration=Release /p:Platform=x64
+        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Clean /p:Configuration=Release /p:Platform=x64'
 
       - name: 发布自包含单文件版本
-        run: msbuild MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64
+        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
 
       - name: 自动定位核心文件路径
         run: |

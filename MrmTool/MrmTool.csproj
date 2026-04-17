@@ -48,6 +48,8 @@
   <ItemGroup>
     <DirectPInvokeList Include="Properties\DirectPInvokeList.txt" />
     <LinkerArg Include="runtimeobject.lib" />
+    <LinkerArg Include="comctl32.lib" />
+    <LinkerArg Include="dwmapi.lib" />
   </ItemGroup>
   
   <ItemGroup>
