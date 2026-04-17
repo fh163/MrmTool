@@ -1,0 +1,101 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <WindowsSdkPackageVersion>10.0.26100.73-preview</WindowsSdkPackageVersion>
+    <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
+    <!-- 15063 下过旧的 XAML/控件契约会导致 UserControl 在运行时 XamlParseException；与 StackPanel.Spacing 等 API 下限一致 -->
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+    <UseUwp>true</UseUwp>
+    <UseUwpTools>true</UseUwpTools>
+    <DefineConstants>DISABLE_XAML_GENERATED_MAIN;COREDISPATCHER_FALLBACK;NANOSVG_ALL_COLOR_KEYWORDS;NANOSVG_NO_XFORM_INVERSE;$(DefineConstants)</DefineConstants>
+    <DefineConstants Condition="'$(Platform)' != 'x86'">IS_64_BIT;$(DefineConstants)</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>x64;arm64;x86</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <DisableEmbeddedXbf>false</DisableEmbeddedXbf>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <ProjectPriFileName>resources.pri</ProjectPriFileName>
+    <_SupportEmbedFileResources>true</_SupportEmbedFileResources>
+    <CsWinRTAotWarningLevel>3</CsWinRTAotWarningLevel>
+    <LangVersion>preview</LangVersion>
+    <CsWinRTIIDOptimizerOptOut>true</CsWinRTIIDOptimizerOptOut>
+    <SkipXamlDesignerSdkCheck>true</SkipXamlDesignerSdkCheck>
+    <ApplicationIcon>..\docs\mrmtool.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- 未指定 RID 时 IntermediateOutputPath 不含 win-*，与 UWP XAML 生成 *.g.cs 所在目录不一致，会导致 InitializeComponent/命名控件全部缺失。 -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == ''">
+    <RuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)' == 'arm64'">win-arm64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)' == 'x86'">win-x86</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == ''">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DirectPInvokeList Include="Properties\DirectPInvokeList.txt" />
+    <LinkerArg Include="runtimeobject.lib" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.3.0-prerelease.251115.2" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed" Version="3.0.1" />
+    <PackageReference Include="MrmLib" Version="1.1.0" />
+    <PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.5" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedPriResource Include="Assets\Icons\audio.png" />
+    <EmbeddedPriResource Include="Assets\Icons\folder.png" />
+    <EmbeddedPriResource Include="Assets\Icons\font.png" />
+    <EmbeddedPriResource Include="Assets\Icons\generic.png" />
+    <EmbeddedPriResource Include="Assets\Icons\image.png" />
+    <EmbeddedPriResource Include="Assets\Icons\text.png" />
+    <EmbeddedPriResource Include="Assets\Icons\video.png" />
+    <EmbeddedPriResource Include="Assets\Icons\xaml.png" />
+    <EmbeddedPriStringResource Include="..\NOTICEEN.txt">
+      <Name>NOTICE</Name>
+    </EmbeddedPriStringResource>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Assets\Icons\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Libs\WinUIEdit\WinUIEditorCsWinRT.dll" />
+    <ReferenceCopyLocalPaths Include="$(MSBuildProjectDirectory)\Libs\WinUIEdit\WinUIEditorCsWinRT.xml" />
+    <ReferenceCopyLocalPaths Include="$(MSBuildProjectDirectory)\Libs\WinUIEdit\WinUIEditor.pri" />
+    <ReferenceCopyLocalPaths Include="$(MSBuildProjectDirectory)\Libs\WinUIEdit\$(Platform)\WinUIEditor.dll"/>
+    <None Remove="Libs\WinUIEdit\WinUIEditor\**\*" />
+    <Page Remove="Libs\WinUIEdit\WinUIEditor\**\*" />
+  </ItemGroup>
+
+  <Import Project="Targets\PriTargets.targets" />
+
+  <Target Name="CopyIconFilesToOutput" AfterTargets="Build">
+    <ItemGroup>
+      <_IconFiles Include="$(MSBuildProjectDirectory)\Assets\Icons\*.png" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)Assets\Icons" />
+    <Copy SourceFiles="@(_IconFiles)"
+          DestinationFolder="$(OutDir)Assets\Icons"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>
