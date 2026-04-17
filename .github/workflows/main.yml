@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2025
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,12 +26,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-          include-prerelease: true
+          dotnet-quality: 'preview'
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: '[18.0,19.0)'
+          vs-version: 'latest'
 
       - name: Resolve Visual Studio MSBuild path
         shell: powershell
@@ -41,13 +41,13 @@ jobs:
             Write-Error "vswhere not found: $vswhere"
             exit 1
           }
-          $vsInstall = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -version "[18.0,19.0)" -property installationPath
+          $vsInstall = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
           if (-not $vsInstall) {
-            Write-Error "Visual Studio 18.x with MSBuild component not found on this runner."
+            Write-Error "Visual Studio with MSBuild component not found on this runner."
             exit 1
           }
-          $vsDisplay = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -version "[18.0,19.0)" -property displayName
-          $vsVersion = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -version "[18.0,19.0)" -property catalog_productDisplayVersion
+          $vsDisplay = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property displayName
+          $vsVersion = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property catalog_productDisplayVersion
           $msbuild = Join-Path $vsInstall "MSBuild\Current\Bin\MSBuild.exe"
           if (-not (Test-Path $msbuild)) {
             Write-Error "MSBuild.exe not found at: $msbuild"
