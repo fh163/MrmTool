@@ -80,13 +80,20 @@ jobs:
         run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Clean /p:Configuration=Release /p:Platform=x64'
 
       - name: 发布自包含单文件版本
-        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:PublishProfile=win-x64 /p:PublishDir="MrmTool\bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\"'
+        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:PublishProfile=win-x64'
 
       - name: 校验发布目录并输出产物大小
         run: |
-          $publishDir = Join-Path $pwd "MrmTool\bin\Release\net10.0-windows10.0.26100.0\win-x64\publish"
-          if (-not (Test-Path $publishDir)) {
-            Write-Error "发布目录不存在: $publishDir"
+          $candidates = @(
+            (Join-Path $pwd "MrmTool\bin\Release\net10.0-windows10.0.26100.0\win-x64\publish"),
+            (Join-Path $pwd "bin\Release\net10.0-windows10.0.26100.0\win-x64\publish")
+          )
+          $publishDir = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $publishDir) {
+            Write-Host "当前目录: $pwd"
+            Write-Host "候选发布目录:"
+            $candidates | ForEach-Object { Write-Host " - $_" }
+            Write-Error "发布目录不存在，请检查 Publish 输出路径。"
             exit 1
           }
           $exePath = Join-Path $publishDir "MrmTool.exe"
