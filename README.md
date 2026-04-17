@@ -1,4 +1,4 @@
-# MrmTool
+# MrmTool 中英双语版
 
 MrmTool 是一款用于查看和编辑 PRI 文件的工具，支持创建、修改、删除 PRI 资源，也可预览资源内容。
 
