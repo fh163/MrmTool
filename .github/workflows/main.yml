@@ -80,5 +80,6 @@ jobs:
             ${{ env.PUBLISH_DIR }}/MrmTool.exe
             ${{ env.PUBLISH_DIR }}/MrmLib.dll
             ${{ env.PUBLISH_DIR }}/WinUIEditor.dll
+            ${{ env.PUBLISH_DIR }}/WinUIEditor.pri
             ${{ env.PUBLISH_DIR }}/resources.pri
         # path: ${{ env.PUBLISH_DIR }}/*  # 备用：打包所有文件
