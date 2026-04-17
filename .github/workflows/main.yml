@@ -80,19 +80,24 @@ jobs:
         run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Clean /p:Configuration=Release /p:Platform=x64'
 
       - name: 发布自包含单文件版本
-        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64'
+        run: '& "${{ env.MSBUILD_EXE }}" MrmTool.sln /t:Publish /p:Configuration=Release /p:Platform=x64 /p:SelfContained=true /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:PublishProfile=win-x64 /p:PublishDir="MrmTool\bin\Release\net10.0-windows10.0.26100.0\win-x64\publish\"'
 
-      - name: 自动定位核心文件路径
+      - name: 校验发布目录并输出产物大小
         run: |
-          # 递归搜索编译生成的主exe，自动找到输出目录
-          $exeFile = Get-ChildItem -Path "MrmTool\bin" -Recurse -Filter "MrmTool.exe" | Select-Object -First 1
-          if (-not $exeFile) {
-            Write-Error "没有找到编译生成的MrmTool.exe，请检查编译日志"
+          $publishDir = Join-Path $pwd "MrmTool\bin\Release\net10.0-windows10.0.26100.0\win-x64\publish"
+          if (-not (Test-Path $publishDir)) {
+            Write-Error "发布目录不存在: $publishDir"
             exit 1
           }
-          $publishDir = $exeFile.Directory.FullName
-          echo "自动找到输出目录: $publishDir"
-          echo "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          $exePath = Join-Path $publishDir "MrmTool.exe"
+          if (-not (Test-Path $exePath)) {
+            Write-Error "发布目录中未找到 MrmTool.exe: $exePath"
+            exit 1
+          }
+          $sizeMB = [Math]::Round((Get-Item $exePath).Length / 1MB, 2)
+          Write-Host "发布目录: $publishDir"
+          Write-Host "MrmTool.exe 大小: $sizeMB MB"
+          "PUBLISH_DIR=$publishDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       # 只上传4个核心文件
       - name: 上传最终4个核心文件
